@@ -2,7 +2,7 @@
   'use strict';
 
   const F = globalThis.OLXFilter;
-  const api = globalThis.browser;
+  const api = globalThis.browser || globalThis.chrome;
   if (!F || !api) return;
 
   const STRINGS = {

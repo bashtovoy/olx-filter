@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OLX Фильтр</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+    <header class="head">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">O</span>
+        <div>
+          <div class="name" data-i18n="title">OLX Фильтр</div>
+          <div class="sub" data-i18n="subtitle">Чистая выдача без лишнего</div>
+        </div>
+      </div>
+      <span class="version">0.2</span>
+    </header>
+
+    <div class="status" id="status" data-tone="muted" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="statusText" data-i18n="loading">Проверяем вкладку…</span>
+    </div>
+
+    <main>
+      <section class="block">
+        <div class="block-head">
+          <h2 data-i18n="display">Отображение</h2>
+          <span class="badge" id="cleanBadge" data-i18n="cleanBadge">чистая выдача</span>
+        </div>
+        <div class="toggle-grid">
+          <label class="toggle">
+            <input id="hideTop" type="checkbox" checked>
+            <span class="switch" aria-hidden="true"></span>
+            <span data-i18n="hideTop">Скрывать ТОП</span>
+          </label>
+          <label class="toggle">
+            <input id="hidePromoted" type="checkbox">
+            <span class="switch" aria-hidden="true"></span>
+            <span data-i18n="hidePromoted">Скрывать рекламу</span>
+          </label>
+          <label class="toggle">
+            <input id="hideBarter" type="checkbox">
+            <span class="switch" aria-hidden="true"></span>
+            <span data-i18n="hideBarter">Скрывать «Обмен»</span>
+          </label>
+          <label class="toggle">
+            <input id="cleanResults" type="checkbox" checked>
+            <span class="switch" aria-hidden="true"></span>
+            <span data-i18n="cleanResults">Чистая выдача</span>
+          </label>
+        </div>
+        <p class="hint" data-i18n="cleanHint">Убирает рекламные блоки, «Сохранить поиск» и SEO-блоки.</p>
+      </section>
+
+      <section class="block">
+        <h2 data-i18n="filters">Фильтры</h2>
+        <div class="row two">
+          <label class="field">
+            <span data-i18n="sort">Сортировка</span>
+            <select id="sort">
+              <option value="filter_float_price:asc" data-i18n="sortCheapest">Сначала дешёвые</option>
+              <option value="filter_float_price:desc" data-i18n="sortExpensive">Сначала дорогие</option>
+              <option value="created_at:desc" data-i18n="sortNewest">Сначала новые</option>
+              <option value="relevance:desc" data-i18n="sortRelevance">Рекомендованные</option>
+              <option value="" data-i18n="sortNone">Не менять</option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="view">Вид</span>
+            <select id="view">
+              <option value="grid" data-i18n="viewGrid">Плитка</option>
+              <option value="list" data-i18n="viewList">Список</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="price-row">
+          <span class="field-label" data-i18n="price">Цена</span>
+          <span class="currency" id="currency">грн.</span>
+          <input id="priceFrom" type="text" inputmode="numeric" autocomplete="off"
+                 data-i18n-placeholder="from" placeholder="от" aria-label="Цена от">
+          <span class="dash" aria-hidden="true">—</span>
+          <input id="priceTo" type="text" inputmode="numeric" autocomplete="off"
+                 data-i18n-placeholder="to" placeholder="до" aria-label="Цена до">
+        </div>
+
+        <div class="condition-row">
+          <span class="field-label" data-i18n="condition">Состояние</span>
+          <div class="chips">
+            <button type="button" class="chip" id="conditionNew" aria-pressed="true"
+                    data-i18n="conditionNew">Новое</button>
+            <button type="button" class="chip" id="conditionUsed" aria-pressed="true"
+                    data-i18n="conditionUsed">Б/у</button>
+          </div>
+        </div>
+
+        <label class="auto">
+          <input id="autoApply" type="checkbox" checked>
+          <span data-i18n="auto">Применять автоматически</span>
+        </label>
+      </section>
+
+      <div class="notice" id="notice" hidden></div>
+      <div class="error" id="error" hidden></div>
+    </main>
+
+    <footer class="actions">
+      <button type="button" class="secondary" id="reset" data-i18n="reset">Сбросить фильтры</button>
+      <button type="button" class="primary" id="apply" data-i18n="apply">Применить</button>
+    </footer>
+    <p class="footnote" data-i18n="note">Сортировка, цена и вид применяются к активной вкладке OLX.</p>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

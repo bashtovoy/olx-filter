@@ -23,7 +23,8 @@
     .${JUNK_CLASS} { display: none !important; }
   `;
 
-  const api = globalThis.browser;
+  const api = globalThis.browser || globalThis.chrome;
+  if (!api) return;
 
   let settings = { ...DEFAULTS };
   let settingsLoaded = false;
@@ -373,6 +374,7 @@
     };
   }
 
+  // BEGIN PAGE BRIDGE
   function pageBridge() {
     if (window.__olxFilterBridgeInstalled) return;
     window.__olxFilterBridgeInstalled = true;
@@ -619,6 +621,7 @@
       }
     });
   }
+  // END PAGE BRIDGE
 
   function handleScanResult(data) {
     if (!data || typeof data !== 'object') return;
