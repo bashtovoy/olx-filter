@@ -23,6 +23,47 @@
 Проверки выполнялись на реальных страницах `www.olx.ua`; для `olx.ua` сайт
 перенаправляет на `www.olx.ua`, content script при этом работает.
 
+### CSP и bridge
+
+Причина ошибки: Chrome content script вызывал legacy `injectBridge()`, который
+вставлял inline `<script>`. На строгой CSP-странице callback Chrome блокировал
+его с сообщением `Executing inline script violates ...` и указывал на
+`content.js` / `injectBridge`.
+
+Исправление: content script находит `page-bridge.js` в
+`runtime.getManifest().content_scripts` и не выполняет inline-вставку. В Chrome
+bridge уже подключён манифестом в `world: "MAIN"`; Firefox-путь с inline bridge
+не изменён. Chrome тоже предоставляет объект `browser`, поэтому проверка по
+наличию `chrome`/`browser` ненадёжна — источник истины именно манифест.
+
+Проверка на реальном callback URL
+`https://www.olx.ua/d/uk/callback/?code=…&state=…`:
+
+- до редиректа на главную в DOM успели появиться `#olxf-base-style` и
+  `#olxf-clean-style` — content script на callback-странице действительно
+  выполнился;
+- MutationObserver не зафиксировал ни одной вставки inline `<script>` с bridge:
+  `0`;
+- после загрузки `inlineBridgeScripts = 0`;
+- `window.__olxFilterBridgeInstalled = true` — MAIN-world bridge работает;
+- в console нет `Executing inline script violates ...` и нет ошибок
+  `content.js:... (injectBridge)`;
+- остался только независимый console error самой OLX: браузер блокирует
+  `data:video/mp4` по её CSP `default-src 'self' *`. К расширению он не относится.
+
+Повторная проверка обычной выдачи после этой же сборки:
+
+- 52 карточки, 39 видимых, 13 скрытых (13 ТОП);
+- 0 видимых бейджей «ТОП», 0 видимых рекламных слотов;
+- 4 колонки в плитке;
+- `inlineBridgeScripts = 0`, `window.__olxFilterBridgeInstalled = true`.
+
+Переключатель «Скрывать ТОП» в попапе:
+
+- выключен: 52 видимых / 0 скрытых, статус `Скрыто: 15 блоков`;
+- включён: 39 видимых / 13 скрытых, статус `Скрыто: 13 ТОП · 15 блоков`;
+- изменения применяются сразу, без перезагрузки страницы.
+
 ### Скрытие ТОП и рекламы
 
 - Электроника, сортировка «Сначала дешёвые», плитка:
@@ -78,9 +119,13 @@ https://www.olx.ua/uk/elektronika/?search%5Bfilter_enum_state%5D%5B0%5D=used&sea
 
 ## Ошибки
 
-На проверенных страницах расширения и попапа не было console errors/warnings,
-связанных с расширением. Сетевые ошибки рекламных iframe OLX к расширению не
-относятся.
+После CSP-фикса на проверенных страницах расширения и попапа нет console
+errors/warnings, связанных с расширением. В частности, больше нет
+`Executing inline script violates ...` и ошибок `content.js:... (injectBridge)`.
+
+На OLX остаётся независимый console error: браузер блокирует `data:video/mp4`
+самой OLX по её CSP `default-src 'self' *`. Он не связан с расширением. Сетевые
+ошибки рекламных iframe OLX также к расширению не относятся.
 
 ## Скриншоты
 

@@ -25,6 +25,22 @@
 
   const api = globalThis.browser || globalThis.chrome;
   if (!api) return;
+  // Chrome gets page-bridge.js as a MAIN-world content script from the
+  // manifest. Firefox still needs the inline bridge below. Chrome also
+  // exposes `browser`, so detect the bridge from the manifest instead of
+  // relying on engine sniffing.
+  let hasMainWorldBridge = false;
+  try {
+    const manifest = api.runtime && typeof api.runtime.getManifest === 'function'
+      ? api.runtime.getManifest()
+      : null;
+    hasMainWorldBridge = !!(manifest &&
+      Array.isArray(manifest.content_scripts) &&
+      manifest.content_scripts.some((script) =>
+        Array.isArray(script.js) && script.js.includes('page-bridge.js')));
+  } catch {
+    // Keep the Firefox fallback if the manifest is unavailable.
+  }
 
   let settings = { ...DEFAULTS };
   let settingsLoaded = false;
@@ -35,7 +51,7 @@
   let lastUrl = location.href;
   let domTimer = 0;
   let fiberTimer = 0;
-  let bridgeInjected = false;
+  let bridgeInjected = hasMainWorldBridge;
   let scanSequence = 0;
   let pendingScanId = '';
   let scanFallbackTimer = 0;
@@ -657,7 +673,7 @@
   }
 
   function injectBridge() {
-    if (bridgeInjected) return;
+    if (hasMainWorldBridge || bridgeInjected) return;
     const parent = document.head || document.documentElement;
     if (!parent) {
       setTimeout(injectBridge, 10);

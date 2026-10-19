@@ -67,7 +67,7 @@ web-ext run --source-dir .
 - выставляет `minimum_chrome_version: "111"`;
 - проверяет синтаксис JS и пересоздаёт папку с нуля.
 
-В Chrome изолированный content script не видит React fiber страницы, поэтому bridge вынесен в MAIN world. В Firefox bridge по-прежнему внедряется inline из `content.js`. После изменения `content.js` пересоберите `dist/chrome`.
+В Chrome изолированный content script не видит React fiber страницы, поэтому bridge вынесен в MAIN world. Content script находит `page-bridge.js` в манифесте и не вставляет inline-скрипт, поэтому CSP страницы не нарушается. В Firefox bridge по-прежнему внедряется inline из `content.js`. После изменения `content.js` пересоберите `dist/chrome`.
 
 Отчёт о live-проверке Chrome-сборки: [TESTING.md](TESTING.md).
 
@@ -94,7 +94,7 @@ web-ext run --source-dir .
 ## Как это работает
 
 1. При загрузке страницы content script пытается поймать `window.__PRERENDERED_STATE__` из `#olx-init-config` до того, как React удалит этот скрипт.
-2. Дополнительно в страницу внедряется небольшой bridge-скрипт. Он читает состояние из SSR и/или находит массив объявлений в React fiber. В Chrome этот bridge собирается как отдельный `page-bridge.js` в MAIN world.
+2. Дополнительно в страницу внедряется небольшой bridge-скрипт. Он читает состояние из SSR и/или находит массив объявлений в React fiber. В Chrome этот bridge собирается как отдельный `page-bridge.js` в MAIN world и подключается манифестом; inline-вставка там не используется.
 3. Из объявлений берутся ID с `isHighlighted` / `promotion.top_ad` (ТОП) и `isPromoted` / `searchReason=promoted` (реклама).
 4. Для скрытия используется CSS по ID карточек + класс на карточке. Это не удаляет объявления из DOM и не ломает пагинацию.
 5. «Чистая выдача» добавляет CSS-стили для рекламных слотов и помечает контейнеры «Сохранить поиск» и SEO-блоков классом `olxf-junk`.
