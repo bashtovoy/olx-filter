@@ -1,9 +1,9 @@
 # macOS
 .DS_Store
 
-# Build artifacts
+# Артефакти збірки
 web-ext-artifacts/
 *.xpi
 
-# Dependencies
+# Залежності
 node_modules/

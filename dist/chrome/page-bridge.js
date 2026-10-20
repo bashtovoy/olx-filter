@@ -63,7 +63,7 @@ function pageBridge() {
       try {
         document.dispatchEvent(new CustomEvent(SSR, { detail: JSON.stringify(parsed) }));
       } catch {
-        // Ignore event failures.
+        // Ігноруємо помилки подій.
       }
     };
 
@@ -82,13 +82,13 @@ function pageBridge() {
       });
       observer.observe(document, { childList: true, subtree: true });
     } catch {
-      // Ignore observer failures.
+      // Ігноруємо помилки спостерігача.
     }
 
     try {
       for (const script of document.querySelectorAll('script#olx-init-config')) capture(script);
     } catch {
-      // Ignore.
+      // Ігноруємо.
     }
 
     const getFiber = (element) => {
@@ -96,12 +96,12 @@ function pageBridge() {
       try {
         keys.push(...Object.keys(element));
       } catch {
-        // Ignore.
+        // Ігноруємо.
       }
       try {
         keys.push(...Object.getOwnPropertyNames(element));
       } catch {
-        // Ignore.
+        // Ігноруємо.
       }
       const key = keys.find((item) => item.startsWith('__reactFiber$') || item.startsWith('__reactInternalInstance$'));
       return key ? element[key] : null;
@@ -242,7 +242,7 @@ function pageBridge() {
       try {
         document.dispatchEvent(new CustomEvent(RES, { detail: JSON.stringify(result) }));
       } catch {
-        // Ignore.
+        // Ігноруємо.
       }
     });
   }

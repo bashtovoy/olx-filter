@@ -100,7 +100,7 @@
     }
   };
 
-  const lang = (navigator.language || '').toLowerCase().startsWith('uk') ? 'uk' : 'ru';
+  const lang = (navigator.language || '').toLowerCase().startsWith('ru') ? 'ru' : 'uk';
   const t = STRINGS[lang];
   const $ = (id) => document.getElementById(id);
 
@@ -216,7 +216,7 @@
       const tabs = await api.tabs.query({ active: true, currentWindow: true });
       if (tabs && tabs[0]) activeTab = tabs[0];
     } catch {
-      // Keep the tab from init.
+      // Зберігаємо вкладку з ініціалізації.
     }
   }
 

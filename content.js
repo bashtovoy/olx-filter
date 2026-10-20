@@ -25,10 +25,10 @@
 
   const api = globalThis.browser || globalThis.chrome;
   if (!api) return;
-  // Chrome gets page-bridge.js as a MAIN-world content script from the
-  // manifest. Firefox still needs the inline bridge below. Chrome also
-  // exposes `browser`, so detect the bridge from the manifest instead of
-  // relying on engine sniffing.
+  // Chrome отримує page-bridge.js як content script у MAIN world з
+  // маніфесту. Firefox досі потребує inline-моста нижче. Chrome також
+  // надає `browser`, тому визначаємо міст за маніфестом, а не
+  // покладаємося на визначення рушія.
   let hasMainWorldBridge = false;
   try {
     const manifest = api.runtime && typeof api.runtime.getManifest === 'function'
@@ -39,7 +39,7 @@
       manifest.content_scripts.some((script) =>
         Array.isArray(script.js) && script.js.includes('page-bridge.js')));
   } catch {
-    // Keep the Firefox fallback if the manifest is unavailable.
+    // Залишаємо Firefox-фолбек, якщо маніфест недоступний.
   }
 
   let settings = { ...DEFAULTS };
@@ -101,7 +101,7 @@
       try {
         href = decodeURIComponent(href);
       } catch {
-        // Keep the original href.
+        // Зберігаємо оригінальний href.
       }
       if (href.includes('search_reason=search|promoted')) return true;
     }
@@ -262,7 +262,7 @@
       }
       sessionStorage.setItem(key, JSON.stringify({ target: target.search, ts: now }));
     } catch {
-      // If storage is unavailable, still navigate; the target is stable.
+      // Якщо сховище недоступне, все одно переходимо; ціль стабільна.
     }
 
     try {
@@ -280,19 +280,19 @@
     try {
       if (grid.wrappedJSObject) node = grid.wrappedJSObject;
     } catch {
-      // Use the Xray wrapper.
+      // Використовуємо Xray-обгортку.
     }
 
     const keys = [];
     try {
       keys.push(...Object.keys(node));
     } catch {
-      // Ignore.
+      // Ігноруємо.
     }
     try {
       keys.push(...Object.getOwnPropertyNames(node));
     } catch {
-      // Ignore.
+      // Ігноруємо.
     }
     const fiberKey = keys.find((key) => key.startsWith('__reactFiber$') || key.startsWith('__reactInternalInstance$'));
     if (!fiberKey) return null;
@@ -454,7 +454,7 @@
       try {
         document.dispatchEvent(new CustomEvent(SSR, { detail: JSON.stringify(parsed) }));
       } catch {
-        // Ignore event failures.
+        // Ігноруємо помилки подій.
       }
     };
 
@@ -473,13 +473,13 @@
       });
       observer.observe(document, { childList: true, subtree: true });
     } catch {
-      // Ignore observer failures.
+      // Ігноруємо помилки спостерігача.
     }
 
     try {
       for (const script of document.querySelectorAll('script#olx-init-config')) capture(script);
     } catch {
-      // Ignore.
+      // Ігноруємо.
     }
 
     const getFiber = (element) => {
@@ -487,12 +487,12 @@
       try {
         keys.push(...Object.keys(element));
       } catch {
-        // Ignore.
+        // Ігноруємо.
       }
       try {
         keys.push(...Object.getOwnPropertyNames(element));
       } catch {
-        // Ignore.
+        // Ігноруємо.
       }
       const key = keys.find((item) => item.startsWith('__reactFiber$') || item.startsWith('__reactInternalInstance$'));
       return key ? element[key] : null;
@@ -633,7 +633,7 @@
       try {
         document.dispatchEvent(new CustomEvent(RES, { detail: JSON.stringify(result) }));
       } catch {
-        // Ignore.
+        // Ігноруємо.
       }
     });
   }
@@ -708,7 +708,7 @@
     try {
       document.dispatchEvent(new CustomEvent(SCAN_REQ, { detail: id }));
     } catch {
-      // The fallback timer will try the Xray route.
+      // Таймер фолбеку спробує шлях через Xray.
     }
   }
 
@@ -786,7 +786,7 @@
         const stored = await api.storage.local.get(STORAGE_KEY);
         settings = F.normalizeSettings(stored && stored[STORAGE_KEY]);
       } catch {
-        // Keep defaults.
+        // Залишаємо типові значення.
       }
     }
     settingsLoaded = true;
@@ -871,7 +871,7 @@
       subtree: true
     });
   } catch {
-    // Ignore observer failures.
+    // Ігноруємо помилки спостерігача.
   }
 
   window.addEventListener('popstate', checkUrl);
