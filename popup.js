@@ -10,6 +10,11 @@
       title: 'OLX Фильтр',
       subtitle: 'Чистая выдача без лишнего',
       loading: 'Проверяем вкладку…',
+      masterTitle: 'Расширение',
+      masterOn: 'Включено',
+      masterOff: 'Выключено',
+      masterToggle: 'Включить или выключить расширение',
+      disabled: 'Расширение выключено.',
       display: 'Отображение',
       cleanBadge: 'чистая выдача',
       hideTop: 'Скрывать ТОП',
@@ -56,6 +61,11 @@
       title: 'OLX Фільтр',
       subtitle: 'Чиста видача без зайвого',
       loading: 'Перевіряємо вкладку…',
+      masterTitle: 'Розширення',
+      masterOn: 'Увімкнено',
+      masterOff: 'Вимкнено',
+      masterToggle: 'Увімкнути або вимкнути розширення',
+      disabled: 'Розширення вимкнено.',
       display: 'Відображення',
       cleanBadge: 'чиста видача',
       hideTop: 'Приховувати ТОП',
@@ -123,6 +133,10 @@
       const key = el.getAttribute('data-i18n-placeholder');
       if (t[key]) el.placeholder = t[key];
     });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+      const key = el.getAttribute('data-i18n-aria-label');
+      if (t[key]) el.setAttribute('aria-label', t[key]);
+    });
   }
 
   function setStatus(text, tone) {
@@ -147,6 +161,16 @@
     el.hidden = !text;
   }
 
+  function renderMaster(enabled) {
+    const bar = $('masterBar');
+    if (!bar) return;
+    bar.dataset.enabled = enabled ? 'true' : 'false';
+    $('masterValue').textContent = enabled ? 'ON' : 'OFF';
+    $('masterState').textContent = enabled ? t.masterOn : t.masterOff;
+    const app = document.querySelector('.app');
+    if (app) app.classList.toggle('is-off', !enabled);
+  }
+
   function ensureSortOption(value) {
     const select = $('sort');
     if (!select || !value) return;
@@ -158,6 +182,8 @@
   }
 
   function renderValues(values) {
+    $('enabled').checked = values.enabled !== false;
+    renderMaster(values.enabled !== false);
     $('hideTop').checked = !!values.hideTop;
     $('hidePromoted').checked = !!values.hidePromoted;
     $('hideBarter').checked = !!values.hideBarter;
@@ -235,6 +261,10 @@
   }
 
   function renderStatus(status) {
+    if (status && status.enabled === false) {
+      setStatus(t.disabled, 'muted');
+      return;
+    }
     if (!isOlxTab(activeTab)) {
       setStatus(t.noOlx, 'warn');
       return;
@@ -255,6 +285,10 @@
   }
 
   async function refreshStatus() {
+    if (!stored.enabled) {
+      setStatus(t.disabled, 'muted');
+      return;
+    }
     if (!isOlxTab(activeTab)) {
       setStatus(t.noOlx, 'warn');
       return;
@@ -284,9 +318,11 @@
     if (id === 'cleanResults') {
       $('cleanBadge').hidden = !$(id).checked;
     }
+    if (id === 'enabled') renderMaster(next.enabled);
 
     if (!isOlxTab(activeTab)) {
-      setStatus(t.noOlx, 'warn');
+      setStatus(id === 'enabled' && !next.enabled ? t.disabled : t.noOlx,
+        id === 'enabled' && !next.enabled ? 'muted' : 'warn');
       return;
     }
 
@@ -301,7 +337,8 @@
       }
       scheduleStatus();
     } catch {
-      setStatus(t.reload, 'warn');
+      setStatus(id === 'enabled' && !next.enabled ? t.disabled : t.reload,
+        id === 'enabled' && !next.enabled ? 'muted' : 'warn');
     }
   }
 
@@ -324,6 +361,10 @@
     }
 
     setNotice('');
+    if (!stored.enabled) {
+      setStatus(t.disabled, 'muted');
+      return;
+    }
     if (!isOlxTab(activeTab)) {
       setStatus(t.noOlx, 'warn');
       return;
@@ -374,6 +415,11 @@
     setNotice('');
     renderValues({ ...next, priceCurrency });
 
+    if (!stored.enabled) {
+      setStatus(t.disabled, 'muted');
+      return;
+    }
+
     if (!isOlxTab(activeTab)) {
       setStatus(t.saved, 'ok');
       return;
@@ -399,7 +445,7 @@
   }
 
   function bindEvents() {
-    for (const id of ['hideTop', 'hidePromoted', 'hideBarter', 'cleanResults', 'autoApply']) {
+    for (const id of ['enabled', 'hideTop', 'hidePromoted', 'hideBarter', 'cleanResults', 'autoApply']) {
       $(id).addEventListener('change', () => onToggle(id));
     }
 

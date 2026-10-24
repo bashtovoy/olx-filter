@@ -151,6 +151,7 @@
   }
 
   function applyClean() {
+    if (!settings.enabled) return;
     if (!settings.cleanResults) {
       const style = document.getElementById(CLEAN_STYLE_ID);
       if (style) style.remove();
@@ -161,6 +162,7 @@
   }
 
   function scanCards() {
+    if (!settings.enabled) return;
     const cards = document.querySelectorAll('[data-testid="l-card"]');
     for (const card of cards) {
       const id = card.id;
@@ -198,14 +200,51 @@
   }
 
   function applyAll() {
+    if (!settings.enabled) {
+      clearEffects();
+      return;
+    }
     injectBaseStyle();
     applyTopHiding();
     applyClean();
     scanCards();
   }
 
+  function clearEffects() {
+    for (const card of document.querySelectorAll(`.${HIDDEN_CLASS}`)) {
+      card.classList.remove(HIDDEN_CLASS);
+    }
+    for (const node of document.querySelectorAll(`.${JUNK_CLASS}`)) {
+      node.classList.remove(JUNK_CLASS);
+    }
+    const topStyle = document.getElementById(TOP_STYLE_ID);
+    if (topStyle) topStyle.textContent = '';
+    const cleanStyle = document.getElementById(CLEAN_STYLE_ID);
+    if (cleanStyle) cleanStyle.remove();
+    const baseStyle = document.getElementById(BASE_STYLE_ID);
+    if (baseStyle) baseStyle.remove();
+  }
+
   function getStatus() {
     const cards = [...document.querySelectorAll('[data-testid="l-card"]')];
+    const params = new URL(location.href).searchParams;
+
+    if (!settings.enabled) {
+      return {
+        enabled: false,
+        isListing: isListingPage(),
+        url: location.href,
+        cards: cards.length,
+        hidden: 0,
+        topHidden: 0,
+        promoHidden: 0,
+        barterHidden: 0,
+        junk: 0,
+        sort: params.get('search[order]') || '',
+        view: params.get('view') === 'list' ? 'list' : 'grid'
+      };
+    }
+
     let hidden = 0;
     let topHidden = 0;
     let promoHidden = 0;
@@ -229,8 +268,8 @@
         document.querySelectorAll(`.${JUNK_CLASS}`).length
       : 0;
 
-    const params = new URL(location.href).searchParams;
     return {
+      enabled: true,
       isListing: isListingPage(),
       url: location.href,
       cards: cards.length,
@@ -245,7 +284,7 @@
   }
 
   function maybeAutoApply() {
-    if (!settingsLoaded || !settings.autoApply || !isListingPage()) return false;
+    if (!settings.enabled || !settingsLoaded || !settings.autoApply || !isListingPage()) return false;
 
     const target = F.buildFilterUrl(location.href, settings, { mode: 'auto' });
     if (target.href === location.href) return false;
@@ -691,7 +730,7 @@
   }
 
   function requestFiberScan() {
-    if (!isListingPage()) return;
+    if (!settings.enabled || !isListingPage()) return;
     injectBridge();
     const id = String((scanSequence += 1));
     pendingScanId = id;
@@ -721,6 +760,7 @@
     clearTimeout(domTimer);
     domTimer = setTimeout(() => {
       checkUrl();
+      if (!settings.enabled) return;
       if (!isListingPage()) return;
       injectBaseStyle();
       applyClean();
@@ -804,6 +844,7 @@
       settings = next;
       settingsLoaded = true;
       applyAll();
+      if (next.enabled) scheduleFiberScan(80);
     });
   }
 

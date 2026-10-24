@@ -8,6 +8,18 @@
 </head>
 <body>
   <div class="app">
+    <div class="master-bar" id="masterBar" data-enabled="true">
+      <div class="master-copy">
+        <div class="master-title" data-i18n="masterTitle">Розширення</div>
+        <div class="master-state" id="masterState">Увімкнено</div>
+      </div>
+      <label class="master">
+        <span class="master-value" id="masterValue" aria-hidden="true">ON</span>
+        <input id="enabled" type="checkbox" checked data-i18n-aria-label="masterToggle">
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+    </div>
+
     <header class="head">
       <div class="brand">
         <span class="logo" aria-hidden="true">O</span>

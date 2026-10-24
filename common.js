@@ -4,6 +4,7 @@
   const SETTINGS_KEY = 'olxFilterSettings';
 
   const DEFAULTS = Object.freeze({
+    enabled: true,
     hideTop: true,
     hidePromoted: false,
     hideBarter: false,
@@ -35,6 +36,7 @@
     const out = { ...DEFAULTS };
     if (!raw || typeof raw !== 'object') return out;
 
+    out.enabled = raw.enabled !== false;
     out.hideTop = raw.hideTop !== false;
     out.hidePromoted = raw.hidePromoted === true;
     out.hideBarter = raw.hideBarter === true;
